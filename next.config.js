@@ -27,6 +27,9 @@ const nextConfig = {
 
     return config
   },
+  images: {
+    domains: ['y.qq.com'],
+  },
 }
 
 module.exports = nextConfig

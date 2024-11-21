@@ -1,23 +1,31 @@
-'use client'
+'use client';
 
-import Image from 'next/image'
-import { useState } from 'react'
-import { saveAs } from 'file-saver'
-import { getSong } from '../api/ktv'
-import { Button, Input } from 'antd'
-import CircleSvg from '@/public/circle.svg'
-import LineSvg from '@/public/line.svg'
+import Image from 'next/image';
+import { useState } from 'react';
+import { saveAs } from 'file-saver';
+import { getSong } from '../api/ktv';
+import CircleSvg from '@/public/circle.svg';
+import LineSvg from '@/public/line.svg';
+import clsx from 'clsx';
+import { toast } from 'sonner';
+import { Button, Description, Input, Label } from '@headlessui/react';
+import { Field } from '@headlessui/react';
 
 export default function Song() {
-  const [value, setValue] = useState('')
+  const [value, setValue] = useState('');
   const handleClick = async () => {
     if (value) {
-      const data = await getSong(value)
+      if (!value.includes('http')) {
+        console.log('111')
+        toast.error('请输入正确的链接');
+        return;
+      }
+      const data = await getSong(value);
       if (data?.url) {
-        saveAs(data.url, `${data.songName}.mp3`)
+        saveAs(data.url, `${data.songName}.mp3`);
       }
     }
-  }
+  };
   return (
     <div className="text-lg">
       <div>
@@ -67,18 +75,36 @@ export default function Song() {
             </div>
           </div>
         </div>
-        <div className="my-8 break-all">从这里复制出来链接，然后粘贴到下面的框框去</div>
-        <div className="a w-[800px]">
-          <Input
-            placeholder="这里粘贴你的全民 k 歌链接"
-            value={value}
-            onInput={(e) => setValue(e.currentTarget.value)}
-          />
+        <div className="my-8 break-all">
+          从这里复制出来链接，然后粘贴到下面的框框去
         </div>
-        <Button className="mt-5" type="primary" onClick={handleClick}>
+        <div className="w-[800px]">
+          <div className="w-full max-w-md px-4 bg-[#f25f4c]/5 rounded-lg py-5">
+            <Field>
+              <Label className="text-sm/6 font-medium text-[#0f0e17]">
+                链接地址URL
+              </Label>
+              <Description className="text-sm/6 text-[#0f0e17]/50">
+                这里粘贴你的全民 k 歌链接
+              </Description>
+              <Input
+                className={clsx(
+                  'mt-3 block w-full rounded-lg border border-[#0f0e17] py-1.5 px-3 text-sm/6 text-[#0f0e17]',
+                  'focus:outline-none data-[focus]:outline-2 data-[focus]:-outline-offset-2 data-[focus]:outline-white/25'
+                )}
+                value={value}
+                onChange={(e) => setValue(e.target.value)}
+              />
+            </Field>
+          </div>
+        </div>
+        <Button
+          className="mt-5 px-5 py-1  rounded-md  focus:outline-none focus:ring-2 bg-[#f25f4c] text-white data-[active]:#fff"
+          onClick={handleClick}
+        >
           下载
         </Button>
       </div>
     </div>
-  )
+  );
 }

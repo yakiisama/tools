@@ -1,3 +1,4 @@
+import Link from "next/link"
 
 export default function Home() {
   const navigation = [
@@ -8,7 +9,7 @@ export default function Home() {
     <div className={`flex flex-col gap-3 text-3xl font-sans`}>
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 p-6">
         {navigation.map((item) => (
-          <a
+          <Link
             key={item.name}
             href={item.href}
             className="group relative bg-white rounded-xl shadow-md hover:shadow-xl transition-all duration-300 p-6 hover:-translate-y-1"
@@ -21,7 +22,7 @@ export default function Home() {
                 {item.description}
               </p>
             </div>
-          </a>
+          </Link>
         ))}
       </div>
     </div>

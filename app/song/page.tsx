@@ -1,220 +1,193 @@
-'use client'
-import { useState } from 'react'
-import './index.css'
-import { saveAs } from 'file-saver'
-import useSWRMutation from 'swr/mutation'
-import { MethodProps, sysRequest } from '../api/fetch'
-import { Button, Input, Select, Space, Tag, Table, Spin } from 'antd'
-import { ColumnsType } from 'antd/es/table'
+'use client';
 
-const extractJson = (str: string) => {
-  const start = str.indexOf('{')
-  const end = str.lastIndexOf('}')
-  return str.substring(start, end + 1)
+import { useRef, useState } from 'react';
+import Image from 'next/image';
+import useSWR from 'swr';
+import { sysRequest } from '../api/fetch';
+import { Button, Input } from '@headlessui/react';
+interface SongData {
+  id: number;
+  mid: string;
+  song: string;
+  cover: string;
+  singer: string;
+  album: string;
 }
 
-interface DataType {
-  createTime: string
-  originSinger: string
-  songName: string
-  status: number
-  collectCnt: number
-  style: string
-  downloadCnt: number
-  playCnt: number
-  singer: string
-  postProduction: string
-  popularityCnt: number
-  songWriter: string
-  composer: string
-  songId: number
-  optComposer: string
-  ext: string
-  songSize: number
-  nickName: string
-  singerId: number
-  type: number
-  typeName: string
-  songurl: string
-  downloadurl: string
-  typeEname: string
+interface SongInfo {
+  url: string;
 }
 
-export default function Song() {
-  const [name, setName] = useState('')
-  const [songType, setSongType] = useState(0)
-  const [pageNum, setPageNum] = useState(1)
-  const [rowIndex, setRowIndex] = useState(0)
+export default function SongPage() {
+  const [searchTerm, setSearchTerm] = useState('');
+  const [songs, setSongs] = useState<SongData[]>([]);
+  const [loading, setLoading] = useState(false);
+  const [playingId, setPlayingId] = useState<number | null>(null);
+  const [SongInfo, setSongInfo] = useState<SongInfo>();
+  const [progress, setProgress] = useState(0);
+  const [duration, setDuration] = useState(0);
+  const audioRefs = useRef<{ [key: number]: HTMLAudioElement }>({});
+  const [isPaused, setIsPaused] = useState<{ [key: number]: boolean }>({});
 
-  const {
-    data: list,
-    isMutating: searchLoading,
-    trigger: runSearch,
-  } = useSWRMutation(
-    name ? `/api/song?pageNum=${pageNum}` : null,
-    (_, { arg }: { arg: MethodProps }) => sysRequest.get('/api/song', arg)
-  )
+  const handleTimeUpdate = (audioElement: HTMLAudioElement) => {
+    setProgress(audioElement.currentTime);
+    setDuration(audioElement.duration);
+  };
 
-  const { trigger, isMutating } = useSWRMutation(
-    `/api/song/download`,
-    (_, { arg }: { arg: MethodProps }) =>
-      sysRequest.get('/api/song/download', arg)
-  )
-
-  const columns: ColumnsType<DataType> = [
-    {
-      title: '序号',
-      dataIndex: 'songId',
-      render: (_, __, index) => index + 1,
-    },
-    {
-      title: '名称',
-      dataIndex: 'songName',
-      render: (text) => (
-        <span
-          dangerouslySetInnerHTML={{
-            __html: text,
-          }}
-        ></span>
-      ),
-    },
-    {
-      title: '原唱',
-      dataIndex: 'originSinger',
-      render: (text) => (
-        <span
-          dangerouslySetInnerHTML={{
-            __html: text,
-          }}
-        ></span>
-      ),
-    },
-    {
-      title: '翻唱',
-      dataIndex: 'singer',
-      render: (text) => (
-        <span
-          dangerouslySetInnerHTML={{
-            __html: text,
-          }}
-        ></span>
-      ),
-    },
-    {
-      title: '类别',
-      dataIndex: 'type',
-      render: (_, record) => {
-        const tagMap: Record<string, string> = {
-          原唱: 'success',
-          翻唱: 'warning',
-          伴奏: 'default',
-        }
-        return <Tag color={tagMap[record.typeName]}>{record.typeName}</Tag>
-      },
-    },
-    {
-      title: '操作',
-      key: 'action',
-      render: (_, record, index) => (
-        <Button
-          loading={index === rowIndex && isMutating}
-          onClick={() => handleDownload(record, index)}
-        >
-          下载
-        </Button>
-      ),
-    },
-  ]
-
-  const handleDownloadUrl = (str: string) => {
-    const jsonStr = extractJson(str)
-    const json = JSON.parse(jsonStr)
-    return json.data
-  }
-
-  const handleDownload = async (l: DataType, index: number) => {
-    setRowIndex(index)
-    trigger(
-      { params: { songId: l.songId } },
-      {
-        onSuccess(data: any) {
-          const res = handleDownloadUrl(data.result)
-          saveAs(res.lqurl, `${res.songName}.mp3`)
+  const handleSearch = async () => {
+    setLoading(true);
+    try {
+      const res = await sysRequest.get('/api/song', {
+        params: {
+          word: searchTerm,
         },
+      });
+      setSongs(res.data);
+    } catch (error) {
+      console.error('Error fetching songs:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handlePlay = async (song: SongData, n = 1) => {
+    if (playingId === song.id) {
+      const audio = audioRefs.current[song.id];
+      if (audio.paused) {
+        audio.play();
+        setIsPaused(prev => ({ ...prev, [song.id]: false }));
+      } else {
+        audio.pause();
+        setIsPaused(prev => ({ ...prev, [song.id]: true }));
       }
-    )
-  }
+      return;
+    }
 
-  const onNameChange = (name: string) => {
-    setName(name)
-  }
+    const res = await sysRequest.get('/api/song/download', {
+      params: { word: searchTerm, n },
+    });
 
-  const onSearch = async () => {
-    runSearch({
-      params: {
-        keyword: name,
-        page: 1,
-        filter: songType,
-      },
-    })
-  }
+    setSongInfo(res.data);
+    if (playingId && audioRefs.current[playingId]) {
+      audioRefs.current[playingId].pause();
+      setIsPaused(prev => ({ ...prev, [playingId]: true }));
+    }
+    
+    const audio = audioRefs.current[song.id];
+    if (audio) {
+      audio.play();
+      setPlayingId(song.id);
+      setIsPaused(prev => ({ ...prev, [song.id]: false }));
+    }
+  };
+
+  const handleProgressChange = (
+    e: React.ChangeEvent<HTMLInputElement>,
+    songId: number
+  ) => {
+    const audio = audioRefs.current[songId];
+    if (audio) {
+      const newTime = Number(e.target.value);
+      audio.currentTime = newTime;
+      setProgress(newTime);
+    }
+  };
 
   return (
-    <>
-      <div className="flex justify-between mb-5">
-        <div className="flex gap-2">
-          <div className="w-[200px]">
-            <Input
-              placeholder="歌曲名称"
-              value={name}
-              onChange={(e) => onNameChange(e.currentTarget.value)}
-            />
-          </div>
-          <Select
-            placeholder="歌曲类型"
-            className="w-[150px]"
-            value={songType}
-            onChange={(v) => setSongType(v)}
-          >
-            <Select.Option value={0}>全部</Select.Option>
-            <Select.Option value={3}>伴奏</Select.Option>
-            <Select.Option value={1}>原唱</Select.Option>
-            <Select.Option value={2}>翻唱</Select.Option>
-          </Select>
-        </div>
+    <div className="container mx-auto p-4">
+      <div className="flex gap-4 mb-8">
+        <Input
+          value={searchTerm}
+          onChange={(e) => setSearchTerm(e.target.value)}
+          placeholder="Search for songs..."
+          className="flex-1 p-2 border rounded"
+        />
         <Button
-          type="primary"
-          className="w-[100px]"
-          onClick={onSearch}
-          loading={searchLoading}
+          onClick={handleSearch}
+          disabled={loading}
+          className="px-4 py-2 bg-[var(--primary)] text-white rounded  disabled:opacity-50"
         >
-          搜索
+          {loading ? 'Searching...' : 'Search'}
         </Button>
       </div>
 
-      <Spin spinning={searchLoading}>
-        <Table
-          caption={<span>旨在下载伴奏，歌曲都无正版版权</span>}
-          rowKey="songId"
-          columns={columns}
-          dataSource={list?.list || []}
-          pagination={{
-            showSizeChanger: false,
-            current: pageNum,
-            total: list?.pageInfo?.totalCount || 0,
-            onChange: (current, size) => {
-              setPageNum(current)
-              runSearch({
-                params: {
-                  keyword: name,
-                  page: current,
-                  filter: songType,
-                },
-              })
-            },
-          }}
-        />
-      </Spin>
-    </>
-  )
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        {songs.map((song, i) => (
+          <div
+            key={song.id}
+            className="border rounded-lg p-4 shadow-lg hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1 bg-white"
+          >
+            <div className="relative w-full aspect-square mb-4 group">
+              <Image
+                src={song.cover}
+                alt={song.song}
+                fill
+                className="object-cover rounded"
+              />
+              <div className="absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-30 transition-all duration-300 flex items-center justify-center">
+                <button
+                  onClick={() => handlePlay(song, i + 1)}
+                  className="opacity-0 group-hover:opacity-100 transition-opacity duration-300 bg-white text-black p-3 rounded-full hover:bg-gray-100"
+                >
+                  {playingId === song.id && !isPaused[song.id] ? (
+                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="currentColor">
+                      <path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z"/>
+                    </svg>
+                  ) : (
+                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="currentColor">
+                      <path d="M8 5v14l11-7z"/>
+                    </svg>
+                  )}
+                </button>
+              </div>
+            </div>
+            <audio
+              ref={(el) => {
+                if (el) audioRefs.current[song.id] = el;
+              }}
+              id={`audio-${song.id}`}
+              src={SongInfo?.url}
+              onEnded={() => setPlayingId(null)}
+              onTimeUpdate={(e) => handleTimeUpdate(e.currentTarget)}
+            />
+            <div className="mt-2">
+              <input
+                type="range"
+                min="0"
+                max={duration || 100}
+                value={playingId === song.id ? progress : 0}
+                onChange={(e) => handleProgressChange(e, song.id)}
+                className="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer"
+              />
+              <div className="flex justify-between text-xs text-gray-500 mt-1">
+                <span>
+                  {playingId === song.id
+                    ? `${Math.floor(progress / 60)}:${String(
+                        Math.floor(progress % 60)
+                      ).padStart(2, '0')}`
+                    : '0:00'}
+                </span>
+                <span>
+                  {playingId === song.id
+                    ? `${Math.floor(duration / 60)}:${String(
+                        Math.floor(duration % 60)
+                      ).padStart(2, '0')}`
+                    : '0:00'}
+                </span>
+              </div>
+            </div>
+            <h3 className="font-bold text-lg mb-1 truncate">{song.song}</h3>
+            <p className="text-gray-600 mb-2 truncate">{song.singer}</p>
+            <p className="text-gray-500 text-sm mb-4 truncate">{song.album}</p>
+            <button
+              onClick={() => window.open(SongInfo?.url)}
+              className="w-full bg-[var(--primary)] text-white py-2 rounded  transition-colors duration-300"
+            >
+              下载
+            </button>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
 }

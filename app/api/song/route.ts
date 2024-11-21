@@ -2,15 +2,11 @@ import { NextResponse } from 'next/server'
 
 export async function GET(request: Request) {
   const { searchParams } = new URL(request.url)
-  const keyword = searchParams.get('keyword')!
-  const pageNum = searchParams.get('page')
-  const filter = searchParams.get('filter')
+  const word = searchParams.get('word')!
   const res = await fetch(
-    `http://search.5sing.kugou.com/home/json?keyword=${encodeURIComponent(
-      keyword
-    )}&sort=1&page=${pageNum}&filter=${filter}&type=0`
+    `https://api.lolimi.cn/API/qqdg/?word=${encodeURIComponent(word)}`
   )
-  const result = await res.json()
+  const data = await res.json()
 
-  return NextResponse.json({ ...result })
+  return NextResponse.json({ ...data })
 }
