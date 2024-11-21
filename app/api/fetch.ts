@@ -65,7 +65,7 @@ class Api extends BaseApi {
 }
 
 class SystemApi extends BaseApi {
-  protected baseUrl = ''
+  protected baseUrl = 'https://api.lolimi.cn'
 }
 
 export const request = new Api()

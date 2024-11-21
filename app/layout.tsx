@@ -4,7 +4,7 @@ import Nav from './nav'
 import { Toaster } from 'sonner'
 
 export const metadata: Metadata = {
-  title: 'TOOLS',
+  title: '工具箱',
   description: '日常使用的一些工具',
 }
 
@@ -15,6 +15,9 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en">
+      <head>
+        <link rel="icon" href="https://www.looyank.cc/_astro/young.CTkkcRXA_2hMNE1.webp" sizes="any" />
+      </head>
       <body>
         <Toaster />
         <main className="flex h-full flex-col items-center justify-between">

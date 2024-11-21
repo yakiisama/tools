@@ -37,11 +37,10 @@ export default function SongPage() {
   const handleSearch = async () => {
     setLoading(true);
     try {
-      const res = await sysRequest.get('/api/song', {
-        params: {
-          word: searchTerm,
-        },
-      });
+      const r = await fetch(
+        `https://api.lolimi.cn/API/qqdg/?word=${encodeURIComponent(searchTerm)}`
+      );
+      const res = await r.json();
       setSongs(res.data);
     } catch (error) {
       console.error('Error fetching songs:', error);
@@ -55,29 +54,32 @@ export default function SongPage() {
       const audio = audioRefs.current[song.id];
       if (audio.paused) {
         audio.play();
-        setIsPaused(prev => ({ ...prev, [song.id]: false }));
+        setIsPaused((prev) => ({ ...prev, [song.id]: false }));
       } else {
         audio.pause();
-        setIsPaused(prev => ({ ...prev, [song.id]: true }));
+        setIsPaused((prev) => ({ ...prev, [song.id]: true }));
       }
       return;
     }
 
-    const res = await sysRequest.get('/api/song/download', {
-      params: { word: searchTerm, n },
-    });
+    const r = await fetch(
+      `https://api.lolimi.cn/API/qqdg/?word=${encodeURIComponent(
+        searchTerm
+      )}&n=${n}`
+    );
+    const res = await r.json();
 
     setSongInfo(res.data);
     if (playingId && audioRefs.current[playingId]) {
       audioRefs.current[playingId].pause();
-      setIsPaused(prev => ({ ...prev, [playingId]: true }));
+      setIsPaused((prev) => ({ ...prev, [playingId]: true }));
     }
-    
+
     const audio = audioRefs.current[song.id];
     if (audio) {
       audio.play();
       setPlayingId(song.id);
-      setIsPaused(prev => ({ ...prev, [song.id]: false }));
+      setIsPaused((prev) => ({ ...prev, [song.id]: false }));
     }
   };
 
@@ -130,12 +132,24 @@ export default function SongPage() {
                   className="opacity-0 group-hover:opacity-100 transition-opacity duration-300 bg-white text-black p-3 rounded-full hover:bg-gray-100"
                 >
                   {playingId === song.id && !isPaused[song.id] ? (
-                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="currentColor">
-                      <path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z"/>
+                    <svg
+                      xmlns="http://www.w3.org/2000/svg"
+                      width="24"
+                      height="24"
+                      viewBox="0 0 24 24"
+                      fill="currentColor"
+                    >
+                      <path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z" />
                     </svg>
                   ) : (
-                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="currentColor">
-                      <path d="M8 5v14l11-7z"/>
+                    <svg
+                      xmlns="http://www.w3.org/2000/svg"
+                      width="24"
+                      height="24"
+                      viewBox="0 0 24 24"
+                      fill="currentColor"
+                    >
+                      <path d="M8 5v14l11-7z" />
                     </svg>
                   )}
                 </button>
