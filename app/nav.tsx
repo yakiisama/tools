@@ -1,5 +1,6 @@
 import Link from 'next/link'
 import Image from 'next/image'
+import { HomeIcon } from './icons/home'
 
 
 export default function Navbar() {
@@ -8,7 +9,7 @@ export default function Navbar() {
       <div className="mx-auto max-w-7xl px-8">
         <div className="flex h-16">
           <Link className="flex flex-shrink-0 items-center" href="/">
-           <img src="https://www.looyank.cc/_astro/young.CTkkcRXA_2hMNE1.webp" alt='avatar' width={50} height={50} className='rounded-full'/>
+           <HomeIcon/>
           </Link>
         </div>
       </div>

@@ -14,17 +14,25 @@ import { Field } from '@headlessui/react';
 export default function Song() {
   const [value, setValue] = useState('');
   const handleClick = async () => {
-    if (value) {
-      if (!value.includes('http')) {
-        console.log('111')
-        toast.error('请输入正确的链接');
-        return;
-      }
-      const data = await getSong(value);
-      if (data?.url) {
-        saveAs(data.url, `${data.songName}.mp3`);
-      }
+    if (!value) {
+      toast.error('请输入链接');
+      return;
     }
+    if (!value.includes('http')) {
+      toast.error('请输入正确的链接');
+      return;
+    }
+    toast.promise(getSong(value), {
+      loading: '下载中，别急，坐和放宽...',
+      success: (data) => {
+        if (data?.url) {
+          saveAs(data.url, `${data.songName}.mp3`);
+        }
+        return '下载成功';
+      },
+      error: 'Error',
+    });
+
   };
   return (
     <div className="text-lg">
@@ -79,7 +87,7 @@ export default function Song() {
           从这里复制出来链接，然后粘贴到下面的框框去
         </div>
         <div className="w-[800px]">
-          <div className="w-full max-w-md px-4 bg-[#f25f4c]/5 rounded-lg py-5">
+          <div className="w-full max-w-md rounded-lg">
             <Field>
               <Label className="text-sm/6 font-medium text-[#0f0e17]">
                 链接地址URL

@@ -2,8 +2,9 @@ import type { Metadata } from 'next'
 import './globals.css'
 import Nav from './nav'
 import { Toaster } from 'sonner'
+import { HomeIcon } from './icons/home'
 
-export const metadata: Metadata = {
+export const metadata = {
   title: '工具箱',
   description: '日常使用的一些工具',
 }
@@ -16,11 +17,12 @@ export default function RootLayout({
   return (
     <html lang="en">
       <head>
-        <link rel="icon" href="https://www.looyank.cc/_astro/young.CTkkcRXA_2hMNE1.webp" sizes="any" />
+        <title>{metadata.title}</title>
+        <meta name="description" content={metadata.description} />
       </head>
       <body>
         <Toaster />
-        <main className="flex h-full flex-col items-center justify-between">
+        <main className="flex min-h-screen flex-col items-center justify-between bg-[#f2edea] bg-[url(/noise.png)]">
           <Nav />
           <div className="z-1 w-full max-w-5xl items-center justify-between p-24 text-sm">
             {children}

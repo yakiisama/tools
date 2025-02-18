@@ -17,6 +17,7 @@
     "clsx": "^2.0.0",
     "file-saver": "^2.0.5",
     "lucide-react": "^0.263.1",
+    "motion": "^12.4.3",
     "next": "13.4.12",
     "postcss": "8.4.27",
     "react": "18.2.0",
@@ -24,15 +25,15 @@
     "sonner": "^1.7.0",
     "swr": "^2.2.0",
     "tailwind-merge": "^1.14.0",
-    "tailwindcss": "3.3.3",
-    "tailwindcss-animate": "^1.0.6",
     "typescript": "5.1.6"
   },
   "devDependencies": {
     "@biomejs/biome": "1.9.4",
+    "@iconify-json/lucide": "^1.2.26",
     "@svgr/webpack": "^8.0.1",
     "@types/file-saver": "^2.0.5",
-    "daisyui": "^4.12.14"
+    "@unocss/postcss": "^65.5.0",
+    "unocss": "^65.5.0"
   },
   "packageManager": "pnpm@9.12.1+sha512.e5a7e52a4183a02d5931057f7a0dbff9d5e9ce3161e33fa68ae392125b79282a8a8a470a51dfc8a0ed86221442eb2fb57019b0990ed24fab519bf0e1bc5ccfc4"
 }
