@@ -1,0 +1,273 @@
+---
+globs: *.tsx,*.jsx
+description: 图标使用规范 - icônes图标系统
+---
+
+# 图标使用规范
+
+## 图标来源
+- **主要来源**：[icônes](https://github.com/antfu-collective/icones) - https://icones.js.org/
+- **实现方式**：通过 UnoCSS 图标预设实现
+- **图标库**：基于 Iconify 的海量图标集合
+
+## 推荐图标集
+
+### Lucide Icons (推荐)
+```tsx
+// 现代简洁风格，与 shadcn/ui 搭配完美
+<i className="i-lucide:home w-5 h-5" />
+<i className="i-lucide:search w-4 h-4" />
+<i className="i-lucide:settings w-6 h-6" />
+<i className="i-lucide:user w-5 h-5" />
+<i className="i-lucide:mail w-4 h-4" />
+```
+
+### Tabler Icons
+```tsx
+// 线性图标，简洁风格
+<i className="i-tabler:home w-5 h-5" />
+<i className="i-tabler:search w-4 h-4" />
+<i className="i-tabler:settings w-6 h-6" />
+```
+
+### Material Symbols
+```tsx
+// Google Material Design 风格
+<i className="i-material-symbols:home w-5 h-5" />
+<i className="i-material-symbols:search w-4 h-4" />
+<i className="i-material-symbols:settings w-6 h-6" />
+```
+
+### Heroicons
+```tsx
+// Tailwind 官方图标
+<i className="i-heroicons:home w-5 h-5" />
+<i className="i-heroicons:magnifying-glass w-4 h-4" />
+<i className="i-heroicons:cog-6-tooth w-6 h-6" />
+```
+
+## 图标大小规范
+
+### 标准尺寸
+```tsx
+// 小图标 - 用于按钮内、表单字段
+<i className="w-4 h-4" />  // 16px
+
+// 中等图标 - 常规使用
+<i className="w-5 h-5" />  // 20px
+
+// 大图标 - 标题、重要元素
+<i className="w-6 h-6" />  // 24px
+
+// 超大图标 - 空状态、加载状态
+<i className="w-8 h-8" />  // 32px
+<i className="w-12 h-12" /> // 48px
+```
+
+### 响应式图标
+```tsx
+// 移动端小，桌面端大
+<i className="w-4 h-4 md:w-5 md:h-5" />
+<i className="w-5 h-5 lg:w-6 lg:h-6" />
+```
+
+## 图标使用模式
+
+### 按钮中的图标
+```tsx
+import { Button } from "@/components/ui/button"
+
+// 图标在左侧
+<Button>
+  <i className="i-lucide:plus w-4 h-4 mr-2" />
+  添加项目
+</Button>
+
+// 图标在右侧
+<Button>
+  继续
+  <i className="i-lucide:arrow-right w-4 h-4 ml-2" />
+</Button>
+
+// 纯图标按钮
+<Button variant="ghost" size="icon">
+  <i className="i-lucide:more-horizontal w-4 h-4" />
+</Button>
+```
+
+### 输入框中的图标
+```tsx
+import { Input } from "@/components/ui/input"
+
+// 左侧图标
+<div className="relative">
+  <i className="i-lucide:search absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground w-4 h-4" />
+  <Input className="pl-10" placeholder="搜索..." />
+</div>
+
+// 右侧图标
+<div className="relative">
+  <Input className="pr-10" type="password" />
+  <i className="i-lucide:eye absolute right-3 top-1/2 transform -translate-y-1/2 text-muted-foreground w-4 h-4" />
+</div>
+```
+
+### 导航和菜单图标
+```tsx
+// 导航项
+<nav className="flex items-center space-x-4">
+  <a href="/home" className="flex items-center gap-2">
+    <i className="i-lucide:home w-5 h-5" />
+    <span>首页</span>
+  </a>
+  <a href="/settings" className="flex items-center gap-2">
+    <i className="i-lucide:settings w-5 h-5" />
+    <span>设置</span>
+  </a>
+</nav>
+
+// 移动端底部导航
+<div className="fixed bottom-0 w-full bg-background border-t">
+  <div className="flex justify-around py-2">
+    <button className="flex flex-col items-center p-2">
+      <i className="i-lucide:home w-6 h-6" />
+      <span className="text-xs mt-1">首页</span>
+    </button>
+  </div>
+</div>
+```
+
+### 状态图标
+```tsx
+// 成功状态
+<div className="flex items-center gap-2 text-green-600">
+  <i className="i-lucide:check-circle w-5 h-5" />
+  <span>操作成功</span>
+</div>
+
+// 错误状态
+<div className="flex items-center gap-2 text-red-600">
+  <i className="i-lucide:x-circle w-5 h-5" />
+  <span>操作失败</span>
+</div>
+
+// 警告状态
+<div className="flex items-center gap-2 text-yellow-600">
+  <i className="i-lucide:alert-triangle w-5 h-5" />
+  <span>注意事项</span>
+</div>
+
+// 信息状态
+<div className="flex items-center gap-2 text-blue-600">
+  <i className="i-lucide:info w-5 h-5" />
+  <span>提示信息</span>
+</div>
+```
+
+### 加载和动画图标
+```tsx
+// 加载中
+<i className="i-lucide:loader-2 w-4 h-4 animate-spin" />
+
+// 刷新
+<i className="i-lucide:refresh-cw w-4 h-4 animate-spin" />
+
+// 脉冲效果
+<i className="i-lucide:heart w-5 h-5 animate-pulse text-red-500" />
+```
+
+## 图标组件封装
+
+### 基础图标组件
+```tsx
+interface IconProps {
+  name: string
+  size?: 'sm' | 'md' | 'lg' | 'xl'
+  className?: string
+}
+
+function Icon({ name, size = 'md', className }: IconProps) {
+  const sizeMap = {
+    sm: 'w-4 h-4',
+    md: 'w-5 h-5', 
+    lg: 'w-6 h-6',
+    xl: 'w-8 h-8'
+  }
+  
+  return <i className={`${name} ${sizeMap[size]} ${className}`} />
+}
+
+// 使用示例
+<Icon name="i-lucide:home" size="md" className="text-blue-500" />
+```
+
+### 带标签的图标组件
+```tsx
+interface IconWithLabelProps {
+  icon: string
+  label: string
+  direction?: 'horizontal' | 'vertical'
+}
+
+function IconWithLabel({ icon, label, direction = 'horizontal' }: IconWithLabelProps) {
+  const isVertical = direction === 'vertical'
+  
+  return (
+    <div className={`flex items-center ${isVertical ? 'flex-col gap-1' : 'gap-2'}`}>
+      <i className={`${icon} w-5 h-5`} />
+      <span className={isVertical ? 'text-xs' : 'text-sm'}>{label}</span>
+    </div>
+  )
+}
+```
+
+## 常用图标映射
+
+### 业务功能图标
+```tsx
+// 用户相关
+i-lucide:user          // 用户
+i-lucide:users         // 用户组
+i-lucide:user-plus     // 添加用户
+i-lucide:user-check    // 用户验证
+
+// 文件操作
+i-lucide:file          // 文件
+i-lucide:folder        // 文件夹
+i-lucide:download      // 下载
+i-lucide:upload        // 上传
+
+// 编辑操作
+i-lucide:edit          // 编辑
+i-lucide:trash-2       // 删除
+i-lucide:copy          // 复制
+i-lucide:save          // 保存
+
+// 导航
+i-lucide:arrow-left    // 返回
+i-lucide:arrow-right   // 前进
+i-lucide:arrow-up      // 向上
+i-lucide:arrow-down    // 向下
+
+// 状态
+i-lucide:check         // 成功
+i-lucide:x             // 关闭/错误
+i-lucide:alert-triangle // 警告
+i-lucide:info          // 信息
+```
+
+## 最佳实践
+
+1. **一致性**：在同一项目中使用同一图标集
+2. **语义化**：选择符合功能语义的图标
+3. **大小统一**：相同层级的图标使用相同大小
+4. **颜色搭配**：图标颜色与文本颜色保持协调
+5. **可访问性**：为图标提供适当的 aria-label
+6. **性能优化**：UnoCSS 会自动按需生成图标样式
+
+## 禁止事项
+
+- ❌ 不要混用多个图标集的同类图标
+- ❌ 不要使用过于复杂或不清晰的图标
+- ❌ 不要在小尺寸下使用过于精细的图标
+- ❌ 不要忽略图标的无障碍性

@@ -1,0 +1,101 @@
+---
+globs: *.tsx,*.jsx
+description: Motion动画和交互设计指南
+---
+
+# Motion 动画指南
+
+## 动画库
+项目使用 `motion` 库实现流畅动画，已在 [package.json](mdc:package.json) 中配置
+
+## 动画原则
+
+### 性能优化
+- 优先使用 `transform` 和 `opacity` 属性动画
+- 避免动画 `width`, `height`, `top`, `left` 等会触发重排的属性
+- 使用 `will-change` 提示浏览器优化
+- 复杂动画使用 `GPU` 加速
+
+### 动画时长
+- 微交互：100-200ms (按钮hover, focus状态)
+- 页面元素进入：200-400ms 
+- 页面切换：300-500ms
+- 复杂动画：500-800ms
+- 避免超过 1000ms 的动画
+
+### 缓动函数
+- 入场动画：`ease-out` 或 `cubic-bezier(0.25, 0.46, 0.45, 0.94)`
+- 出场动画：`ease-in` 或 `cubic-bezier(0.55, 0.06, 0.68, 0.19)`
+- 弹性效果：`spring` 配置
+- 自然过渡：`ease-in-out`
+
+## 常用动画模式
+
+### 页面进入动画
+```tsx
+// 渐入 + 上移
+initial={{ opacity: 0, y: 20 }}
+animate={{ opacity: 1, y: 0 }}
+transition={{ duration: 0.3, ease: "easeOut" }}
+
+// 列表项错落进入
+variants={{
+  hidden: { opacity: 0, y: 20 },
+  visible: (i) => ({
+    opacity: 1,
+    y: 0,
+    transition: { delay: i * 0.1, duration: 0.3 }
+  })
+}}
+```
+
+### 交互反馈
+```tsx
+// 按钮交互
+whileHover={{ scale: 1.02, transition: { duration: 0.2 } }}
+whileTap={{ scale: 0.98 }}
+
+// 卡片悬停
+whileHover={{ 
+  y: -2, 
+  boxShadow: "0 10px 25px rgba(0,0,0,0.1)",
+  transition: { duration: 0.2 }
+}}
+```
+
+### 布局动画
+```tsx
+// 自动布局过渡
+layout
+transition={{ type: "spring", stiffness: 300, damping: 30 }}
+```
+
+## 移动端优化
+
+### 触摸友好
+- 增大点击区域到至少 44px × 44px
+- 使用 `whileTap` 提供触摸反馈
+- 避免过于敏感的hover效果
+
+### 性能考虑
+- 减少同时运行的动画数量
+- 使用 `useReducedMotion` 尊重用户偏好设置
+- 弱设备上简化动画效果
+
+### 手势支持
+```tsx
+// 滑动手势
+drag="x"
+dragConstraints={{ left: -100, right: 100 }}
+onDragEnd={(event, info) => {
+  if (info.offset.x > 100) {
+    // 右滑操作
+  }
+}}
+```
+
+## 可访问性
+- 提供 `prefers-reduced-motion` 支持
+- 重要信息不依赖动画传达
+- 确保动画不影响屏幕阅读器
+- 避免快速闪烁可能引起不适

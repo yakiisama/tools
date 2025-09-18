@@ -1,118 +1,141 @@
-'use client';
+import * as React from 'react'
+import Image from 'next/image'
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '../components/ui/card'
+import KtvDownloadForm from '../components/feature/ktv-download-form'
+import type { Metadata } from 'next'
 
-import Image from 'next/image';
-import { useState } from 'react';
-import { saveAs } from 'file-saver';
-import { getSong } from '../api/ktv';
-import CircleSvg from '@/public/circle.svg';
-import LineSvg from '@/public/line.svg';
-import clsx from 'clsx';
-import { toast } from 'sonner';
-import { Button, Description, Input, Label } from '@headlessui/react';
-import { Field } from '@headlessui/react';
+/**
+ * 页面元数据 - SEO 优化
+ */
+export const metadata: Metadata = {
+  title: '全民 K 歌下载',
+  description: '免费下载全民 K 歌中您的演唱作品，支持高品质 MP3 格式',
+}
 
-export default function Song() {
-  const [value, setValue] = useState('');
-  const handleClick = async () => {
-    if (!value) {
-      toast.error('请输入链接');
-      return;
-    }
-    if (!value.includes('http')) {
-      toast.error('请输入正确的链接');
-      return;
-    }
-    toast.promise(getSong(value), {
-      loading: '下载中，别急，坐和放宽...',
-      success: (data) => {
-        if (data?.url) {
-          saveAs(data.url, `${data.songName}.mp3`);
-        }
-        return '下载成功';
-      },
-      error: 'Error',
-    });
+/**
+ * K 歌下载页面组件 - Server Component
+ * 使用 shadcn/ui 组件和 icônes 图标系统
+ */
+export default function KtvDownloadPage() {
 
-  };
   return (
-    <div className="text-lg">
-      <div>
-        <div className="block lg:gap-10 lg:flex">
-          <div>
-            <div>1. 打开全民 k 歌对应的歌曲页面</div>
-            <div>
-              2. 点击右上角的
-              <b className="relative">
-                <span>三个点</span>
-                <div className="w-[80px] absolute -right-4 -top-5">
-                  <CircleSvg />
-                </div>
-              </b>
-            </div>
-            <div>
-              3. 点击
-              <b className="relative">
-                <span>分享</span>
-                <div className="absolute w-[50px] -right-1 -bottom-1">
-                  <LineSvg />
-                </div>
-              </b>
-            </div>
-            <div>
-              4. 选择
-              <b className="relative">
-                <span>复制链接</span>
-                <div className="absolute w-[90px] -right-2 -bottom-2">
-                  <LineSvg />
-                </div>
-              </b>
-            </div>
-            <div>5. 粘贴至下面的输入框中</div>
-            <div>6. 点击下载</div>
-          </div>
-          <div>
-            <div>Example: </div>
-            <div className="w-40">
-              <Image
-                src="/song.jpg"
-                alt="example-song.jpg"
-                width={200}
-                height={400}
-                priority
+    <div className="space-y-8">
+      {/* 页面标题 */}
+      <div className="text-center space-y-2">
+        <h1 className="text-2xl md:text-3xl font-bold text-foreground">
+          全民 K 歌下载
+        </h1>
+        <p className="text-muted-foreground">
+          下载您在全民 K 歌中的演唱作品
+        </p>
+      </div>
+
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+        {/* 使用指南 */}
+        <Card>
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <i className="i-lucide:book-open w-5 h-5 text-primary" />
+              使用指南
+            </CardTitle>
+            <CardDescription>
+              按照以下步骤获取歌曲链接
+            </CardDescription>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            <div className="space-y-3 text-sm md:text-base">
+              <StepItem number={1} text="打开全民K歌对应的歌曲页面" />
+              
+              <StepItem 
+                number={2} 
+                text={
+                  <span>
+                    点击右上角的
+                    <b className="relative mx-1 text-primary">
+                      三个点
+                    </b>
+                  </span>
+                }
               />
-            </div>
-          </div>
-        </div>
-        <div className="my-8 break-all">
-          从这里复制出来链接，然后粘贴到下面的框框去
-        </div>
-        <div className="w-[800px]">
-          <div className="w-full max-w-md rounded-lg">
-            <Field>
-              <Label className="text-sm/6 font-medium text-[#0f0e17]">
-                链接地址URL
-              </Label>
-              <Description className="text-sm/6 text-[#0f0e17]/50">
-                这里粘贴你的全民 k 歌链接
-              </Description>
-              <Input
-                className={clsx(
-                  'mt-3 block w-full rounded-lg border border-[#0f0e17] py-1.5 px-3 text-sm/6 text-[#0f0e17]',
-                  'focus:outline-none data-[focus]:outline-2 data-[focus]:-outline-offset-2 data-[focus]:outline-white/25'
-                )}
-                value={value}
-                onChange={(e) => setValue(e.target.value)}
+              
+              <StepItem 
+                number={3} 
+                text={
+                  <span>
+                    点击
+                    <b className="relative mx-1 text-primary">
+                      分享
+                    </b>
+                  </span>
+                }
               />
-            </Field>
-          </div>
-        </div>
-        <Button
-          className="mt-5 px-5 py-1  rounded-md  focus:outline-none focus:ring-2 bg-[#f25f4c] text-white data-[active]:#fff"
-          onClick={handleClick}
-        >
-          下载
-        </Button>
+              
+              <StepItem 
+                number={4} 
+                text={
+                  <span>
+                    选择
+                    <b className="relative mx-1 text-primary">
+                      复制链接
+                    </b>
+                  </span>
+                }
+              />
+              
+              <StepItem number={5} text="粘贴链接到下方输入框" />
+              <StepItem number={6} text="点击下载按钮" />
+            </div>
+          </CardContent>
+        </Card>
+
+        {/* 示例图片 */}
+        <Card>
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <i className="i-lucide:image w-5 h-5 text-primary" />
+              操作示例
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="flex justify-center">
+              <div className="w-48 md:w-56">
+                <Image
+                  src="/song.jpg"
+                  alt="全民K歌操作示例"
+                  width={200}
+                  height={400}
+                  className="rounded-lg shadow-md w-full h-auto"
+                  priority
+                />
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+      </div>
+
+      {/* 下载区域 - 客户端组件 */}
+      <KtvDownloadForm />
+    </div>
+  )
+}
+
+/**
+ * 步骤项组件
+ */
+interface StepItemProps {
+  number: number
+  text: React.ReactNode
+}
+
+function StepItem({ number, text }: StepItemProps) {
+  return (
+    <div className="flex items-start gap-3">
+      <div className="flex-shrink-0 w-6 h-6 bg-primary text-primary-foreground text-xs font-medium rounded-full flex items-center justify-center mt-0.5">
+        {number}
+      </div>
+      <div className="flex-1 pt-0.5">
+        {text}
       </div>
     </div>
-  );
+  )
 }

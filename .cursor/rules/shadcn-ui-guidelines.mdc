@@ -1,0 +1,246 @@
+---
+alwaysApply: true
+description: shadcn/ui组件库使用指南和图标系统
+---
+
+# shadcn/ui 组件库使用指南
+
+## UI组件优先级
+
+### 1. 优先使用 shadcn/ui
+- **首选方案**：使用 shadcn/ui 提供的组件
+- **官方文档**：https://ui.shadcn.com/
+- **安装方式**：使用 `npx shadcn-ui@latest add [component]` 添加组件
+- **组件位置**：存放在 `app/components/ui/` 目录
+
+### 2. 禁用的UI库
+- ❌ 不使用 @headlessui/react
+- ❌ 不使用 其他第三方UI组件库
+- ❌ 避免引入额外的UI依赖
+
+### 3. 自定义组件规范
+- 当 shadcn/ui 没有所需组件时，基于其设计系统自行构建
+- 使用相同的设计token和样式规范
+- 保持与 shadcn/ui 组件的一致性
+
+## 图标系统 - icônes
+
+### 图标来源
+- **主要来源**：https://github.com/antfu-collective/icones
+- **在线浏览**：https://icones.js.org/
+- **图标库**：基于 Iconify 的海量图标集合
+
+### UnoCSS 图标使用
+项目已配置 UnoCSS 图标预设，可直接使用：
+
+```tsx
+// 使用 UnoCSS 图标类名
+<i className="i-lucide:home w-6 h-6" />
+<i className="i-material-symbols:download" />
+<i className="i-tabler:settings" />
+
+// 图标组件封装
+function Icon({ name, className }: { name: string; className?: string }) {
+  return <i className={`${name} ${className}`} />
+}
+
+// 使用示例
+<Icon name="i-lucide:search" className="w-5 h-5 text-gray-500" />
+```
+
+### 图标集推荐
+- **Lucide**：`i-lucide:icon-name` - 现代简洁风格
+- **Tabler**：`i-tabler:icon-name` - 线性图标
+- **Material Symbols**：`i-material-symbols:icon-name` - Google Material
+- **Heroicons**：`i-heroicons:icon-name` - Tailwind 官方图标
+
+### 图标使用规范
+```tsx
+// ✅ 正确用法
+<button className="flex items-center gap-2">
+  <i className="i-lucide:plus w-4 h-4" />
+  添加项目
+</button>
+
+// ✅ 带样式的图标
+<i className="i-lucide:heart w-5 h-5 text-red-500 hover:text-red-600" />
+
+// ✅ 响应式图标大小
+<i className="i-lucide:menu w-5 h-5 md:w-6 md:h-6" />
+```
+
+## shadcn/ui 组件示例
+
+### 按钮组件
+```tsx
+import { Button } from "@/components/ui/button"
+
+// 基础用法
+<Button>点击我</Button>
+<Button variant="outline">轮廓按钮</Button>
+<Button variant="ghost">幽灵按钮</Button>
+<Button size="sm">小按钮</Button>
+
+// 带图标的按钮
+<Button>
+  <i className="i-lucide:plus w-4 h-4 mr-2" />
+  添加项目
+</Button>
+```
+
+### 卡片组件
+```tsx
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
+
+<Card>
+  <CardHeader>
+    <CardTitle className="flex items-center gap-2">
+      <i className="i-lucide:settings w-5 h-5" />
+      设置
+    </CardTitle>
+    <CardDescription>管理您的账户设置</CardDescription>
+  </CardHeader>
+  <CardContent>
+    <p>卡片内容</p>
+  </CardContent>
+</Card>
+```
+
+### 输入框组件
+```tsx
+import { Input } from "@/components/ui/input"
+import { Label } from "@/components/ui/label"
+
+<div className="space-y-2">
+  <Label htmlFor="email">邮箱地址</Label>
+  <div className="relative">
+    <i className="i-lucide:mail absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
+    <Input 
+      id="email" 
+      type="email" 
+      placeholder="请输入邮箱"
+      className="pl-10"
+    />
+  </div>
+</div>
+```
+
+### 对话框组件
+```tsx
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog"
+
+<Dialog>
+  <DialogTrigger asChild>
+    <Button>
+      <i className="i-lucide:plus w-4 h-4 mr-2" />
+      打开对话框
+    </Button>
+  </DialogTrigger>
+  <DialogContent>
+    <DialogHeader>
+      <DialogTitle>对话框标题</DialogTitle>
+      <DialogDescription>对话框描述信息</DialogDescription>
+    </DialogHeader>
+    {/* 对话框内容 */}
+  </DialogContent>
+</Dialog>
+```
+
+## 安装和配置
+
+### 初始化 shadcn/ui
+```bash
+npx shadcn-ui@latest init
+```
+
+### 添加常用组件
+```bash
+# 基础组件
+npx shadcn-ui@latest add button
+npx shadcn-ui@latest add card
+npx shadcn-ui@latest add input
+npx shadcn-ui@latest add label
+
+# 布局组件
+npx shadcn-ui@latest add dialog
+npx shadcn-ui@latest add sheet
+npx shadcn-ui@latest add dropdown-menu
+
+# 表单组件
+npx shadcn-ui@latest add form
+npx shadcn-ui@latest add select
+npx shadcn-ui@latest add checkbox
+
+# 反馈组件
+npx shadcn-ui@latest add toast
+npx shadcn-ui@latest add alert
+npx shadcn-ui@latest add skeleton
+```
+
+### UnoCSS 图标配置
+确保 [uno.config.ts](mdc:uno.config.ts) 包含图标预设：
+
+```ts
+import { defineConfig, presetUno, presetIcons } from 'unocss'
+
+export default defineConfig({
+  presets: [
+    presetUno(),
+    presetIcons({
+      extraProperties: {
+        'display': 'inline-block',
+        'vertical-align': 'middle',
+      }
+    }),
+  ],
+})
+```
+
+## 开发规范
+
+### 组件导入
+```tsx
+// ✅ 正确 - 从 shadcn/ui 导入
+import { Button } from "@/components/ui/button"
+import { Card } from "@/components/ui/card"
+
+// ❌ 错误 - 不要使用其他UI库
+import { Button } from "@headlessui/react"
+```
+
+### 样式定制
+```tsx
+// ✅ 使用 className 定制样式
+<Button className="bg-gradient-to-r from-blue-500 to-purple-600">
+  渐变按钮
+</Button>
+
+// ✅ 使用 variant prop
+<Button variant="destructive">删除</Button>
+```
+
+### 图标一致性
+```tsx
+// ✅ 保持图标大小一致
+const iconSize = "w-4 h-4" // 或 w-5 h-5
+
+<Button>
+  <i className={`i-lucide:save ${iconSize} mr-2`} />
+  保存
+</Button>
+```
+
+## 最佳实践
+
+1. **组件复用**：基于 shadcn/ui 组件构建业务组件
+2. **图标标准化**：统一使用 icônes 图标系统
+3. **样式一致性**：遵循 shadcn/ui 的设计系统
+4. **无障碍性**：利用 shadcn/ui 内置的可访问性特性
+5. **性能优化**：按需引入组件，避免整体导入

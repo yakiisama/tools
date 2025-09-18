@@ -1,0 +1,393 @@
+---
+alwaysApply: false
+description: Next.js项目中shadcn/ui的安装和配置指南
+---
+
+# Next.js + shadcn/ui 配置指南
+
+## 初始化 shadcn/ui
+
+### 1. 安装和初始化
+```bash
+# 初始化 shadcn/ui
+npx shadcn-ui@latest init
+
+# 配置选项推荐：
+# - TypeScript: Yes
+# - Style: Default
+# - Base color: Slate
+# - CSS file: app/globals.css
+# - CSS variables: Yes
+# - Tailwind config: tailwind.config.js 或使用 UnoCSS
+# - Components: app/components/ui
+# - Utils: lib/utils.ts
+# - React Server Components: Yes
+```
+
+### 2. 必要依赖
+```json
+{
+  "dependencies": {
+    "class-variance-authority": "^0.7.0",
+    "clsx": "^2.0.0",
+    "tailwind-merge": "^1.14.0",
+    "@radix-ui/react-slot": "^1.0.2"
+  }
+}
+```
+
+## UnoCSS 与 shadcn/ui 集成
+
+### uno.config.ts 配置
+```ts
+import { defineConfig, presetUno, presetIcons } from 'unocss'
+
+export default defineConfig({
+  presets: [
+    presetUno(),
+    presetIcons({
+      collections: {
+        lucide: () => import('@iconify-json/lucide/icons.json').then(i => i.default),
+        tabler: () => import('@iconify-json/tabler/icons.json').then(i => i.default),
+        'material-symbols': () => import('@iconify-json/material-symbols/icons.json').then(i => i.default),
+      },
+      extraProperties: {
+        'display': 'inline-block',
+        'vertical-align': 'middle',
+      }
+    }),
+  ],
+  // 与 shadcn/ui 兼容的配置
+  shortcuts: {
+    // shadcn/ui 常用类名
+    'destructive': 'bg-red-500 text-white hover:bg-red-600',
+    'muted': 'text-gray-500',
+    'muted-foreground': 'text-gray-500',
+    'border': 'border border-gray-200',
+    'input': 'border border-gray-300 rounded-md px-3 py-2',
+    'ring': 'focus:ring-2 focus:ring-blue-500',
+  },
+})
+```
+
+### globals.css 基础样式
+```css
+@unocss all;
+
+/* shadcn/ui CSS 变量 */
+:root {
+  --background: 0 0% 100%;
+  --foreground: 222.2 84% 4.9%;
+  --card: 0 0% 100%;
+  --card-foreground: 222.2 84% 4.9%;
+  --popover: 0 0% 100%;
+  --popover-foreground: 222.2 84% 4.9%;
+  --primary: 222.2 47.4% 11.2%;
+  --primary-foreground: 210 40% 98%;
+  --secondary: 210 40% 96%;
+  --secondary-foreground: 222.2 84% 4.9%;
+  --muted: 210 40% 96%;
+  --muted-foreground: 215.4 16.3% 46.9%;
+  --accent: 210 40% 96%;
+  --accent-foreground: 222.2 84% 4.9%;
+  --destructive: 0 84.2% 60.2%;
+  --destructive-foreground: 210 40% 98%;
+  --border: 214.3 31.8% 91.4%;
+  --input: 214.3 31.8% 91.4%;
+  --ring: 222.2 84% 4.9%;
+  --radius: 0.5rem;
+}
+
+.dark {
+  --background: 222.2 84% 4.9%;
+  --foreground: 210 40% 98%;
+  --card: 222.2 84% 4.9%;
+  --card-foreground: 210 40% 98%;
+  --popover: 222.2 84% 4.9%;
+  --popover-foreground: 210 40% 98%;
+  --primary: 210 40% 98%;
+  --primary-foreground: 222.2 47.4% 11.2%;
+  --secondary: 217.2 32.6% 17.5%;
+  --secondary-foreground: 210 40% 98%;
+  --muted: 217.2 32.6% 17.5%;
+  --muted-foreground: 215 20.2% 65.1%;
+  --accent: 217.2 32.6% 17.5%;
+  --accent-foreground: 210 40% 98%;
+  --destructive: 0 62.8% 30.6%;
+  --destructive-foreground: 210 40% 98%;
+  --border: 217.2 32.6% 17.5%;
+  --input: 217.2 32.6% 17.5%;
+  --ring: 212.7 26.8% 83.9%;
+}
+```
+
+## 推荐组件安装清单
+
+### 基础组件
+```bash
+# 核心组件
+npx shadcn-ui@latest add button
+npx shadcn-ui@latest add input
+npx shadcn-ui@latest add label
+npx shadcn-ui@latest add textarea
+npx shadcn-ui@latest add select
+npx shadcn-ui@latest add checkbox
+npx shadcn-ui@latest add radio-group
+npx shadcn-ui@latest add switch
+
+# 布局组件
+npx shadcn-ui@latest add card
+npx shadcn-ui@latest add separator
+npx shadcn-ui@latest add sheet
+npx shadcn-ui@latest add dialog
+npx shadcn-ui@latest add tabs
+npx shadcn-ui@latest add accordion
+
+# 反馈组件
+npx shadcn-ui@latest add alert
+npx shadcn-ui@latest add toast
+npx shadcn-ui@latest add skeleton
+npx shadcn-ui@latest add badge
+npx shadcn-ui@latest add progress
+
+# 导航组件
+npx shadcn-ui@latest add dropdown-menu
+npx shadcn-ui@latest add navigation-menu
+npx shadcn-ui@latest add breadcrumb
+npx shadcn-ui@latest add pagination
+
+# 数据展示
+npx shadcn-ui@latest add table
+npx shadcn-ui@latest add avatar
+npx shadcn-ui@latest add calendar
+npx shadcn-ui@latest add popover
+npx shadcn-ui@latest add tooltip
+```
+
+### 表单相关
+```bash
+# 表单组件
+npx shadcn-ui@latest add form
+npx shadcn-ui@latest add command
+npx shadcn-ui@latest add combobox
+npx shadcn-ui@latest add date-picker
+```
+
+## 组件使用示例
+
+### 完整表单示例
+```tsx
+"use client"
+
+import { zodResolver } from "@hookform/resolvers/zod"
+import { useForm } from "react-hook-form"
+import * as z from "zod"
+import { Button } from "@/components/ui/button"
+import { Form, FormControl, FormDescription, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form"
+import { Input } from "@/components/ui/input"
+import { toast } from "@/components/ui/use-toast"
+
+const formSchema = z.object({
+  username: z.string().min(2, {
+    message: "用户名至少需要2个字符。",
+  }),
+  email: z.string().email({
+    message: "请输入有效的邮箱地址。",
+  }),
+})
+
+export function ProfileForm() {
+  const form = useForm<z.infer<typeof formSchema>>({
+    resolver: zodResolver(formSchema),
+    defaultValues: {
+      username: "",
+      email: "",
+    },
+  })
+
+  function onSubmit(values: z.infer<typeof formSchema>) {
+    toast({
+      title: "提交成功",
+      description: "您的信息已更新。",
+    })
+  }
+
+  return (
+    <Form {...form}>
+      <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
+        <FormField
+          control={form.control}
+          name="username"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>用户名</FormLabel>
+              <FormControl>
+                <div className="relative">
+                  <i className="i-lucide:user absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground w-4 h-4" />
+                  <Input placeholder="请输入用户名" className="pl-10" {...field} />
+                </div>
+              </FormControl>
+              <FormDescription>
+                这是您的公开显示名称。
+              </FormDescription>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+        
+        <FormField
+          control={form.control}
+          name="email"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>邮箱</FormLabel>
+              <FormControl>
+                <div className="relative">
+                  <i className="i-lucide:mail absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground w-4 h-4" />
+                  <Input type="email" placeholder="请输入邮箱" className="pl-10" {...field} />
+                </div>
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+        
+        <Button type="submit">
+          <i className="i-lucide:save w-4 h-4 mr-2" />
+          保存
+        </Button>
+      </form>
+    </Form>
+  )
+}
+```
+
+### 数据展示卡片
+```tsx
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
+import { Badge } from "@/components/ui/badge"
+import { Button } from "@/components/ui/button"
+
+export function ProjectCard({ project }: { project: any }) {
+  return (
+    <Card className="hover:shadow-md transition-shadow">
+      <CardHeader>
+        <div className="flex items-start justify-between">
+          <div className="space-y-1">
+            <CardTitle className="flex items-center gap-2">
+              <i className="i-lucide:folder w-5 h-5 text-blue-500" />
+              {project.name}
+            </CardTitle>
+            <CardDescription>{project.description}</CardDescription>
+          </div>
+          <Badge variant={project.status === 'active' ? 'default' : 'secondary'}>
+            {project.status}
+          </Badge>
+        </div>
+      </CardHeader>
+      
+      <CardContent>
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-4 text-sm text-muted-foreground">
+            <span className="flex items-center gap-1">
+              <i className="i-lucide:calendar w-4 h-4" />
+              {project.createdAt}
+            </span>
+            <span className="flex items-center gap-1">
+              <i className="i-lucide:users w-4 h-4" />
+              {project.members}
+            </span>
+          </div>
+          
+          <div className="flex gap-2">
+            <Button variant="ghost" size="sm">
+              <i className="i-lucide:eye w-4 h-4" />
+            </Button>
+            <Button variant="ghost" size="sm">
+              <i className="i-lucide:edit w-4 h-4" />
+            </Button>
+            <Button variant="ghost" size="sm">
+              <i className="i-lucide:more-horizontal w-4 h-4" />
+            </Button>
+          </div>
+        </div>
+      </CardContent>
+    </Card>
+  )
+}
+```
+
+## 主题配置
+
+### 支持深色模式
+```tsx
+// app/providers.tsx
+"use client"
+
+import * as React from "react"
+import { ThemeProvider as NextThemesProvider } from "next-themes"
+
+export function ThemeProvider({
+  children,
+  ...props
+}: React.ComponentProps<typeof NextThemesProvider>) {
+  return <NextThemesProvider {...props}>{children}</NextThemesProvider>
+}
+
+// app/layout.tsx
+import { ThemeProvider } from "@/components/providers"
+
+export default function RootLayout({
+  children,
+}: {
+  children: React.ReactNode
+}) {
+  return (
+    <html lang="zh-CN" suppressHydrationWarning>
+      <body>
+        <ThemeProvider
+          attribute="class"
+          defaultTheme="system"
+          enableSystem
+          disableTransitionOnChange
+        >
+          {children}
+        </ThemeProvider>
+      </body>
+    </html>
+  )
+}
+```
+
+### 主题切换组件
+```tsx
+"use client"
+
+import * as React from "react"
+import { useTheme } from "next-themes"
+import { Button } from "@/components/ui/button"
+
+export function ThemeToggle() {
+  const { setTheme, theme } = useTheme()
+
+  return (
+    <Button
+      variant="ghost"
+      size="icon"
+      onClick={() => setTheme(theme === "light" ? "dark" : "light")}
+    >
+      <i className="i-lucide:sun w-5 h-5 rotate-0 scale-100 transition-all dark:-rotate-90 dark:scale-0" />
+      <i className="i-lucide:moon absolute w-5 h-5 rotate-90 scale-0 transition-all dark:rotate-0 dark:scale-100" />
+      <span className="sr-only">切换主题</span>
+    </Button>
+  )
+}
+```
+
+## 注意事项
+
+1. **样式冲突**：确保 UnoCSS 与 shadcn/ui 的样式不冲突
+2. **组件导入**：始终从 `@/components/ui/` 导入 shadcn/ui 组件
+3. **类型安全**：使用 TypeScript 确保组件属性的类型安全
+4. **无障碍性**：shadcn/ui 基于 Radix UI，天然支持无障碍特性
+5. **定制化**：通过 CSS 变量和类名定制组件外观

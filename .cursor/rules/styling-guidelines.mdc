@@ -1,0 +1,54 @@
+---
+globs: *.tsx,*.jsx,*.css
+description: TailwindCSS和UnoCSS样式指南，优先使用shadcn/ui
+---
+
+# 样式系统指南
+
+## UI 组件优先级
+1. **shadcn/ui 组件** - 首选UI组件库
+2. **UnoCSS/TailwindCSS** - 样式工具类
+3. **自定义组件** - 基于shadcn/ui设计系统构建
+
+## UnoCSS 配置
+项目使用 UnoCSS 作为主要 CSS 框架，配置在 [uno.config.ts](mdc:uno.config.ts)
+
+## 样式规范
+
+### 响应式设计
+- 移动优先设计：先写移动端样式，再用断点扩展
+- 断点使用：`sm:` (640px+), `md:` (768px+), `lg:` (1024px+), `xl:` (1280px+)
+- 容器最大宽度：`max-w-7xl mx-auto`
+
+### 间距系统
+- 使用统一的间距标准：`p-4`, `m-6`, `gap-4` 等
+- 页面内边距：`px-4 sm:px-6 lg:px-8`
+- 组件间距：`space-y-4`, `space-x-2`
+
+### 颜色系统
+- 主色调：使用语义化命名，如 `text-primary`, `bg-primary`
+- 状态颜色：`text-green-600` (成功), `text-red-600` (错误), `text-yellow-600` (警告)
+- 中性色：`text-gray-600`, `bg-gray-100`
+
+### 字体系统
+- 字体大小：`text-sm`, `text-base`, `text-lg`, `text-xl`, `text-2xl`
+- 字重：`font-normal`, `font-medium`, `font-semibold`, `font-bold`
+- 行高：`leading-relaxed`, `leading-tight`
+
+### 阴影和边框
+- 卡片阴影：`shadow-sm`, `shadow-md`, `shadow-lg`
+- 边框：`border border-gray-200`, `rounded-lg`, `rounded-xl`
+
+### 布局
+- Flexbox 优先：`flex`, `items-center`, `justify-between`
+- Grid 用于复杂布局：`grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3`
+
+## 代码组织
+- 长类名使用 `clsx` 或 `cn` 工具函数组合
+- 提取常用样式到组件变体中
+- 使用 `class-variance-authority` 创建组件样式变体
+
+## 性能优化
+- 避免内联样式，优先使用原子类
+- 合理使用 `@apply` 指令组合复用样式
+- 生产环境自动移除未使用的样式

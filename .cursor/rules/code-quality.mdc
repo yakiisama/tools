@@ -1,0 +1,202 @@
+---
+alwaysApply: true
+description: 代码质量、抽象和维护性指南
+---
+
+# 代码质量和维护性指南
+
+## 代码抽象原则
+
+### 组件抽象
+```tsx
+// 好的抽象 - 可配置的按钮组件
+interface ButtonProps {
+  variant?: 'primary' | 'secondary' | 'ghost'
+  size?: 'sm' | 'md' | 'lg'
+  loading?: boolean
+  children: React.ReactNode
+}
+
+// 避免过度抽象 - 简单组件不需要复杂配置
+```
+
+### 工具函数抽象
+- 3次以上重复的逻辑抽取为函数
+- 单一职责原则，一个函数只做一件事
+- 纯函数优先，避免副作用
+- 在 [lib/utils.ts](mdc:lib/utils.ts) 中放置通用工具
+
+### 自定义Hook抽象
+```tsx
+// 抽象数据获取逻辑
+function useApiData<T>(url: string) {
+  // SWR 或状态逻辑
+  return { data, loading, error, mutate }
+}
+
+// 抽象表单逻辑
+function useForm<T>(initialValues: T) {
+  // 表单状态和验证逻辑
+  return { values, errors, handleChange, handleSubmit }
+}
+```
+
+## 分层架构
+
+### 目录结构分层
+```
+app/
+├── components/          # 可复用组件
+│   ├── ui/             # 基础UI组件
+│   ├── layout/         # 布局组件
+│   └── feature/        # 业务组件
+├── hooks/              # 自定义Hook
+├── lib/                # 工具库
+├── types/              # 类型定义
+└── constants/          # 常量定义
+```
+
+### 数据层分离
+- API 调用放在 `app/api/` 或 `lib/api.ts`
+- 数据类型定义放在 `types/`
+- 状态管理逻辑独立于组件
+
+### 样式层分离
+- 基础样式组件与业务组件分离
+- 使用 `class-variance-authority` 管理样式变体
+- 主题和设计token集中管理
+
+## 关键注释规范
+
+### 函数注释
+```tsx
+/**
+ * 获取用户KTV预订信息
+ * @param userId - 用户ID
+ * @param dateRange - 查询日期范围
+ * @returns 预订信息列表，按时间倒序
+ */
+async function getKtvBookings(userId: string, dateRange: DateRange) {
+  // 实现逻辑
+}
+```
+
+### 复杂逻辑注释
+```tsx
+// 处理移动端安全区域适配，避免内容被刘海屏遮挡
+const safeAreaPadding = {
+  paddingTop: 'env(safe-area-inset-top)',
+  paddingBottom: 'env(safe-area-inset-bottom)',
+}
+
+// 防抖处理用户输入，减少API调用频率
+const debouncedSearch = useMemo(
+  () => debounce(handleSearch, 300),
+  [handleSearch]
+)
+```
+
+### 业务逻辑注释
+```tsx
+// 根据业务规则：VIP用户可预订7天内任意时段，普通用户只能预订3天内
+const getAvailableTimeSlots = (userType: UserType) => {
+  const maxDays = userType === 'VIP' ? 7 : 3
+  // ...
+}
+```
+
+## 类型安全
+
+### 严格类型定义
+```tsx
+// API 响应类型
+interface KtvRoom {
+  id: string
+  name: string
+  capacity: number
+  pricePerHour: number
+  features: RoomFeature[]
+  availability: TimeSlot[]
+}
+
+// 组件Props类型
+interface RoomCardProps {
+  room: KtvRoom
+  onBook: (roomId: string) => void
+  isLoading?: boolean
+}
+```
+
+### 联合类型和枚举
+```tsx
+// 使用联合类型限制可选值
+type BookingStatus = 'pending' | 'confirmed' | 'cancelled' | 'completed'
+
+// 枚举常量集中管理
+enum PaymentMethod {
+  CREDIT_CARD = 'credit_card',
+  ALIPAY = 'alipay',
+  WECHAT = 'wechat',
+  CASH = 'cash'
+}
+```
+
+## 错误处理
+
+### 统一错误处理
+```tsx
+// 错误边界组件
+class ErrorBoundary extends Component<Props, State> {
+  // 捕获组件错误，显示友好提示
+}
+
+// API 错误处理
+const handleApiError = (error: ApiError) => {
+  // 根据错误类型显示不同提示
+  // 记录错误日志
+  // 上报错误监控
+}
+```
+
+### 加载和错误状态
+```tsx
+// 统一的异步状态处理
+const { data, loading, error } = useQuery('bookings', fetchBookings)
+
+if (loading) return <BookingSkeleton />
+if (error) return <ErrorMessage error={error} />
+return <BookingList data={data} />
+```
+
+## 性能优化
+
+### 组件优化
+```tsx
+// 使用 memo 避免不必要的重渲染
+const ExpensiveComponent = memo(({ data }: Props) => {
+  // 复杂渲染逻辑
+})
+
+// 使用 useMemo 缓存计算结果
+const processedData = useMemo(() => {
+  return heavyProcessing(rawData)
+}, [rawData])
+```
+
+### 代码分割
+```tsx
+// 路由级别懒加载
+const KtvPage = lazy(() => import('./ktv/page'))
+
+// 组件级别懒加载
+const HeavyChart = lazy(() => import('./HeavyChart'))
+```
+
+## 代码审查要点
+1. 组件职责是否单一
+2. 是否有重复代码可以抽象
+3. 类型定义是否完整
+4. 错误处理是否充分
+5. 性能影响是否考虑
+6. 移动端兼容性是否测试
+7. 关键逻辑是否有注释

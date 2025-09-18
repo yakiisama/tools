@@ -1,0 +1,128 @@
+---
+globs: *.tsx,*.jsx,*.css
+description: 移动端响应式设计和用户体验指南
+---
+
+# 移动端响应式设计指南
+
+## 响应式断点
+- `xs`: < 640px (超小屏手机)
+- `sm`: 640px+ (大屏手机)
+- `md`: 768px+ (平板竖屏)
+- `lg`: 1024px+ (平板横屏/小笔记本)
+- `xl`: 1280px+ (桌面)
+- `2xl`: 1536px+ (大屏桌面)
+
+## 移动优先设计原则
+
+### 布局适配
+```tsx
+// 移动端单列，桌面端多列
+<div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+
+// 移动端堆叠，桌面端并排
+<div className="flex flex-col md:flex-row gap-4">
+
+// 移动端全宽，桌面端限制宽度
+<div className="w-full max-w-md mx-auto">
+```
+
+### 导航设计
+- 移动端使用汉堡菜单或底部导航
+- 导航项目数量控制在5个以内
+- 重要操作优先可见
+- 参考 [nav.tsx](mdc:app/nav.tsx) 当前实现
+
+### 触摸交互
+- 最小点击区域：44px × 44px
+- 按钮间距：至少8px
+- 滑动操作提供视觉反馈
+- 支持手势操作（滑动、长按等）
+
+## 性能优化
+
+### 图片优化
+```tsx
+// 响应式图片
+<Image
+  src="/image.jpg"
+  alt="描述"
+  width={800}
+  height={600}
+  className="w-full h-auto"
+  sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+  priority // 首屏图片
+/>
+```
+
+### 字体加载
+- 使用 `font-display: swap` 
+- 预加载关键字体
+- 提供字体回退方案
+
+### 代码分割
+- 路由级别代码分割
+- 组件懒加载
+- 第三方库按需加载
+
+## 内容适配
+
+### 文字排版
+```tsx
+// 移动端较小字号，桌面端正常字号
+<h1 className="text-2xl md:text-4xl font-bold">
+<p className="text-sm md:text-base leading-relaxed">
+```
+
+### 间距调整
+```tsx
+// 移动端紧凑间距，桌面端宽松间距
+<div className="p-4 md:p-8">
+<div className="space-y-4 md:space-y-6">
+```
+
+### 表格处理
+- 移动端使用卡片布局替代表格
+- 或使用横向滚动
+- 隐藏次要列信息
+
+## 交互体验
+
+### 输入优化
+```tsx
+// 移动端优化的输入框
+<input 
+  type="email"
+  inputMode="email"
+  autoComplete="email"
+  className="w-full text-base" // 避免移动端缩放
+/>
+```
+
+### 模态框和抽屉
+- 移动端使用全屏或底部抽屉
+- 桌面端使用居中模态框
+- 提供明确的关闭方式
+
+### 加载状态
+- 骨架屏优于转圈loading
+- 渐进式内容加载
+- 网络状态提示
+
+## 测试和调试
+
+### 真机测试
+- 在真实设备上测试触摸交互
+- 验证不同屏幕尺寸下的显示
+- 测试网络较慢时的体验
+
+### 开发工具
+- 使用浏览器设备模拟器
+- Chrome DevTools 的移动端调试
+- 性能面板监控渲染性能
+
+### 常见问题检查
+- 横竖屏切换适配
+- 安全区域适配 (iPhone notch)
+- 软键盘弹起时的布局
+- 触摸事件与点击事件冲突

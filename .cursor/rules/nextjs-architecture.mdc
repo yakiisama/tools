@@ -1,0 +1,41 @@
+---
+alwaysApply: true
+description: Next.js项目架构和最佳实践
+---
+
+# Next.js 项目架构和最佳实践
+
+## 项目结构
+- 使用 [app/](mdc:app/) 目录结构 (App Router)
+- 页面组件放在对应路由的 `page.tsx` 中
+- 布局组件使用 [layout.tsx](mdc:app/layout.tsx) 
+- 加载状态使用 [loading.tsx](mdc:app/loading.tsx)
+- 错误处理使用 [error.tsx](mdc:app/error.tsx)
+- 404页面使用 [not-found.tsx](mdc:app/not-found.tsx)
+
+## 组件规范
+- 所有组件使用 TypeScript 和函数式组件
+- 组件文件名使用 PascalCase (如 `NavBar.tsx`)
+- 组件导出使用 default export
+- 复用组件放在 `components/` 目录
+- 工具函数放在 [lib/utils.ts](mdc:lib/utils.ts)
+
+## API 路由
+- API 路由放在 [app/api/](mdc:app/api/) 目录
+- 使用 TypeScript 定义请求/响应类型
+- 实现适当的错误处理和状态码返回
+
+## 性能优化
+- 使用 `next/image` 组件优化图片加载
+- 使用 `next/link` 进行客户端导航
+- 合理使用 Server Components 和 Client Components
+- 使用 `loading.tsx` 提供加载状态反馈
+
+## 数据获取
+- 服务端数据获取优先使用 Server Components
+- 客户端数据获取使用 SWR 或 React Query
+- 使用 TypeScript 定义数据类型
+
+## SEO 优化
+- 每个页面设置合适的 metadata
+- 使用语义化 HTML 标签

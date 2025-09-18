@@ -1,0 +1,286 @@
+---
+globs: *.tsx,*.jsx
+description: 用户界面和用户体验设计模式，基于shadcn/ui
+---
+
+# UI/UX 设计模式指南
+
+## 设计系统原则
+
+### shadcn/ui 设计系统
+- **主要UI框架**：shadcn/ui (https://ui.shadcn.com/)
+- **图标系统**：icônes (https://icones.js.org/)
+- **样式框架**：UnoCSS + TailwindCSS
+- **设计token**：基于shadcn/ui的设计规范
+
+### 一致性原则
+- 统一使用 shadcn/ui 组件系统
+- 相同功能使用相同的组件和交互模式
+- 保持与 shadcn/ui 设计语言的一致性
+
+### 可预测性
+- 按钮和链接的视觉区分明确
+- 交互反馈及时且符合预期
+- 导航结构清晰可预测
+
+## 常用UI模式
+
+### 导航模式
+```tsx
+// 顶部导航 - 参考 nav.tsx
+<nav className="fixed top-0 w-full bg-white/75 backdrop-blur-md">
+  <div className="max-w-7xl mx-auto px-4">
+    // 导航内容
+  </div>
+</nav>
+
+// 移动端底部导航
+<nav className="fixed bottom-0 w-full bg-white border-t">
+  <div className="flex justify-around py-2">
+    // 导航图标
+  </div>
+</nav>
+```
+
+### 卡片布局 - shadcn/ui Card
+```tsx
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
+
+// shadcn/ui 卡片组件
+<Card className="hover:shadow-md transition-shadow">
+  <CardHeader>
+    <CardTitle className="flex items-center gap-2">
+      <i className="i-lucide:settings w-5 h-5" />
+      标题
+    </CardTitle>
+    <CardDescription>描述内容</CardDescription>
+  </CardHeader>
+  <CardContent>
+    <div className="flex justify-between items-center">
+      {/* 操作按钮 */}
+    </div>
+  </CardContent>
+</Card>
+```
+
+### 表单设计 - shadcn/ui Form
+```tsx
+import { Input } from "@/components/ui/input"
+import { Label } from "@/components/ui/label"
+import { Button } from "@/components/ui/button"
+
+// shadcn/ui 表单组件
+<div className="space-y-4">
+  <div className="space-y-2">
+    <Label htmlFor="email">邮箱地址</Label>
+    <div className="relative">
+      <i className="i-lucide:mail absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground w-4 h-4" />
+      <Input 
+        id="email"
+        type="email" 
+        placeholder="请输入邮箱"
+        className="pl-10"
+      />
+    </div>
+    <p className="text-sm text-muted-foreground">提示信息</p>
+  </div>
+</div>
+```
+
+## 交互设计模式
+
+### 微交互 - shadcn/ui Button
+```tsx
+import { Button } from "@/components/ui/button"
+
+// shadcn/ui 按钮状态反馈
+<Button 
+  variant="default"
+  className="transition-all hover:scale-[1.02] active:scale-[0.98]"
+>
+  <i className="i-lucide:plus w-4 h-4 mr-2" />
+  点击按钮
+</Button>
+
+// 加载状态按钮
+<Button disabled={loading}>
+  {loading ? (
+    <>
+      <i className="i-lucide:loader-2 w-4 h-4 mr-2 animate-spin" />
+      处理中...
+    </>
+  ) : (
+    <>
+      <i className="i-lucide:check w-4 h-4 mr-2" />
+      完成
+    </>
+  )}
+</Button>
+```
+
+### 状态管理
+```tsx
+// 空状态设计
+<div className="text-center py-12">
+  <div className="mx-auto h-12 w-12 text-gray-400">
+    <EmptyIcon />
+  </div>
+  <h3 className="mt-2 text-sm font-medium text-gray-900">暂无数据</h3>
+  <p className="mt-1 text-sm text-gray-500">开始添加您的第一个项目</p>
+  <div className="mt-6">
+    <button className="bg-blue-600 text-white px-4 py-2 rounded-md">
+      添加项目
+    </button>
+  </div>
+</div>
+
+// 错误状态设计
+<div className="bg-red-50 border border-red-200 rounded-md p-4">
+  <div className="flex">
+    <ErrorIcon className="h-5 w-5 text-red-400" />
+    <div className="ml-3">
+      <h3 className="text-sm font-medium text-red-800">出现错误</h3>
+      <p className="text-sm text-red-700 mt-1">请稍后重试或联系客服</p>
+    </div>
+  </div>
+</div>
+```
+
+## 人机交互原则
+
+### 可访问性 (A11y)
+```tsx
+// 语义化标签
+<main role="main">
+  <h1>页面主标题</h1>
+  <section aria-labelledby="section-title">
+    <h2 id="section-title">章节标题</h2>
+  </section>
+</main>
+
+// 键盘导航支持
+<div 
+  tabIndex={0}
+  onKeyDown={(e) => {
+    if (e.key === 'Enter' || e.key === ' ') {
+      handleClick()
+    }
+  }}
+  className="focus:outline-none focus:ring-2 focus:ring-blue-500"
+>
+  可聚焦元素
+</div>
+
+// 屏幕阅读器支持
+<button aria-label="关闭对话框">
+  <CloseIcon />
+</button>
+```
+
+### 反馈机制
+```tsx
+// Toast 消息提示
+<div className="fixed top-4 right-4 bg-green-600 text-white px-4 py-2 rounded-md shadow-lg">
+  操作成功完成
+</div>
+
+// 进度指示
+<div className="w-full bg-gray-200 rounded-full h-2">
+  <div 
+    className="bg-blue-600 h-2 rounded-full transition-all duration-300" 
+    style={{ width: `${progress}%` }}
+  />
+</div>
+```
+
+### 渐进增强
+```tsx
+// 基础功能 -> 增强体验
+const EnhancedComponent = () => {
+  const [enhanced, setEnhanced] = useState(false)
+  
+  useEffect(() => {
+    // 检测设备能力后启用增强功能
+    if (window.IntersectionObserver && 'motion' in window) {
+      setEnhanced(true)
+    }
+  }, [])
+  
+  return enhanced ? <AnimatedView /> : <SimpleView />
+}
+```
+
+## 内容设计
+
+### 信息层级
+```tsx
+// 清晰的视觉层级
+<article className="space-y-6">
+  <h1 className="text-3xl font-bold text-gray-900">主标题</h1>
+  <h2 className="text-xl font-semibold text-gray-800">副标题</h2>
+  <p className="text-base text-gray-600 leading-relaxed">正文内容</p>
+  <p className="text-sm text-gray-500">辅助信息</p>
+</article>
+```
+
+### 扫描友好
+- 使用列表和要点
+- 重要信息突出显示
+- 合理使用留白空间
+- 分块组织相关内容
+
+### 多语言支持
+```tsx
+// 文本国际化
+const t = useTranslation()
+
+<button>{t('common.save')}</button>
+<p>{t('message.welcome', { name: userName })}</p>
+```
+
+## 响应式适配
+
+### 内容优先级
+```tsx
+// 移动端隐藏次要信息
+<div className="hidden md:block">桌面端显示的详细信息</div>
+<div className="md:hidden">移动端简化信息</div>
+
+// 渐进式展示
+<div className="space-y-2">
+  <div>主要内容</div>
+  <details className="md:hidden">
+    <summary>查看更多</summary>
+    <div>详细内容</div>
+  </details>
+</div>
+```
+
+### 触摸优化
+```tsx
+// 触摸友好的按钮
+<button className="min-h-[44px] min-w-[44px] touch-manipulation">
+  <Icon className="w-6 h-6" />
+</button>
+
+// 滑动操作
+<div className="overflow-x-auto scrollbar-hide">
+  <div className="flex space-x-4 pb-4">
+    {items.map(item => <Card key={item.id} {...item} />)}
+  </div>
+</div>
+```
+
+## 性能感知
+
+### 感知性能优化
+- 使用骨架屏而非空白页面
+- 渐进式图片加载
+- 预加载关键资源
+- 优化首屏渲染时间
+
+### 用户反馈
+- 即时响应用户操作
+- 长时间操作显示进度
+- 网络状态提示
+- 失败重试机制
