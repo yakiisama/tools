@@ -9,7 +9,7 @@ interface Props {
 
 export type MethodProps = Pick<Props, 'data' | 'params'>;
 
-abstract class BaseApi {
+export abstract class BaseApi {
   protected abstract baseUrl: string;
   public static async request<T = unknown>(options: Props) {
     const newOptions: RequestInit = {

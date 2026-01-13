@@ -17,6 +17,13 @@ interface ToolItem {
  */
 const tools: ToolItem[] = [
   {
+    name: '音乐下载',
+    description: '支持搜索和下载网易云、QQ音乐、酷我音乐平台的歌曲',
+    href: '/music',
+    icon: 'i-lucide:headphones',
+    status: 'available'
+  },
+  {
     name: 'K 歌下载',
     description: '支持全民 K 歌作品下载，保存您的精彩演唱到本地',
     href: '/ktv',
