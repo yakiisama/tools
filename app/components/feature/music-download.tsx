@@ -3,18 +3,34 @@
 import * as React from 'react'
 import { saveAs } from 'file-saver'
 import { toast } from 'sonner'
-import { musicApi, type SearchResult, type MusicPlatform } from '../../api/music'
+import { musicApi, type SearchResult, type MusicPlatform, type MusicQuality } from '../../api/music'
 import { Button } from '../ui/button'
 import { Input } from '../ui/input'
 import { Label } from '../ui/label'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '../ui/card'
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '../ui/select'
+
+/**
+ * 平台选项配置
+ */
+const platformOptions: { value: MusicPlatform; label: string; icon: string }[] = [
+  { value: 'netease', label: '网易云音乐', icon: 'i-lucide:music' },
+  { value: 'qq', label: 'QQ 音乐', icon: 'i-lucide:headphones' },
+  { value: 'kuwo', label: '酷我音乐', icon: 'i-lucide:radio' },
+]
 
 /**
  * 平台显示名称映射
  */
 const platformNames: Record<MusicPlatform, string> = {
   netease: '网易云',
-  qq: 'QQ音乐',
+  qq: 'QQ 音乐',
   kuwo: '酷我',
 }
 
@@ -28,23 +44,38 @@ const platformColors: Record<MusicPlatform, string> = {
 }
 
 /**
- * 平台图标映射
+ * 音质选项配置（按平台支持情况）
+ * 酷我不支持 flac24bit (Hi-Res)
  */
-const platformIcons: Record<MusicPlatform, string> = {
-  netease: 'i-lucide:music',
-  qq: 'i-lucide:headphones',
-  kuwo: 'i-lucide:radio',
-}
+const qualityOptions: { value: MusicQuality; label: string; desc: string; platforms: MusicPlatform[] }[] = [
+  { value: '128k', label: '标准', desc: '128kbps MP3', platforms: ['netease', 'qq', 'kuwo'] },
+  { value: '320k', label: '高品质', desc: '320kbps MP3', platforms: ['netease', 'qq', 'kuwo'] },
+  { value: 'flac', label: '无损', desc: 'FLAC', platforms: ['netease', 'qq', 'kuwo'] },
+  { value: 'flac24bit', label: 'Hi-Res', desc: '24bit FLAC', platforms: ['netease', 'qq'] },
+]
 
 /**
  * 音乐搜索和下载组件
  */
 export default function MusicDownload() {
   const [keyword, setKeyword] = React.useState('')
+  const [platform, setPlatform] = React.useState<MusicPlatform>('netease')
+  const [quality, setQuality] = React.useState<MusicQuality>('320k')
   const [isSearching, setIsSearching] = React.useState(false)
   const [isDownloading, setIsDownloading] = React.useState<string | null>(null)
   const [results, setResults] = React.useState<SearchResult[]>([])
   const [hasSearched, setHasSearched] = React.useState(false)
+
+  // 根据当前平台过滤可用音质
+  const availableQualities = qualityOptions.filter(opt => opt.platforms.includes(platform))
+
+  // 切换平台时，如果当前音质不支持则自动降级
+  React.useEffect(() => {
+    const isSupported = qualityOptions.find(opt => opt.value === quality)?.platforms.includes(platform)
+    if (!isSupported) {
+      setQuality('320k')
+    }
+  }, [platform, quality])
 
   /**
    * 处理搜索请求
@@ -59,9 +90,9 @@ export default function MusicDownload() {
     setHasSearched(true)
 
     try {
-      const response = await musicApi.searchMusic(keyword.trim())
+      const response = await musicApi.searchMusic(keyword.trim(), platform)
       
-      if (response?.code === 200 && response.data?.results) {
+      if (response?.code === 0 && response.data?.results) {
         setResults(response.data.results)
         if (response.data.results.length === 0) {
           toast.info('未找到相关歌曲，请尝试其他关键词')
@@ -81,20 +112,28 @@ export default function MusicDownload() {
   }
 
   /**
-   * 处理下载请求
+   * 处理下载请求 - 先解析获取链接再下载
    */
   const handleDownload = async (song: SearchResult) => {
     setIsDownloading(song.id)
 
     try {
-      // 直接使用 song.url 下载
-      const fileName = `${song.name} - ${song.artist}.mp3`
-      saveAs(song.url, fileName)
+      // 调用解析接口获取下载链接
+      const response = await musicApi.parseMusic(song.platform, song.id, quality)
       
-      toast.success('下载成功！请查看下载文件夹')
+      if (response?.code !== 0 || !response.data?.url) {
+        throw new Error(response?.message || '获取下载链接失败')
+      }
+
+      // 根据音质确定文件扩展名
+      const ext = quality.startsWith('flac') ? 'flac' : 'mp3'
+      const fileName = `${song.name} - ${song.artist}.${ext}`
+      
+      saveAs(response.data.url, fileName)
+      toast.success('开始下载！请查看下载文件夹')
     } catch (error) {
       console.error('下载失败：', error)
-      toast.error('下载失败，请稍后重试')
+      toast.error(error instanceof Error ? error.message : '下载失败，请稍后重试')
     } finally {
       setIsDownloading(null)
     }
@@ -119,10 +158,52 @@ export default function MusicDownload() {
             搜索音乐
           </CardTitle>
           <CardDescription className="text-sm md:text-base">
-            支持搜索网易云、QQ音乐、酷我音乐平台的歌曲
+            选择平台并搜索歌曲
           </CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
+          {/* 平台和音质选择 */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div className="space-y-2">
+              <Label className="text-sm font-medium">音乐平台</Label>
+              <Select value={platform} onValueChange={(v) => setPlatform(v as MusicPlatform)}>
+                <SelectTrigger className="w-full">
+                  <SelectValue placeholder="选择平台" />
+                </SelectTrigger>
+                <SelectContent>
+                  {platformOptions.map((opt) => (
+                    <SelectItem key={opt.value} value={opt.value}>
+                      <span className="flex items-center gap-2">
+                        <i className={`${opt.icon} w-4 h-4`} />
+                        <span>{opt.label}</span>
+                      </span>
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+
+            <div className="space-y-2">
+              <Label className="text-sm font-medium">下载音质</Label>
+              <Select value={quality} onValueChange={(v) => setQuality(v as MusicQuality)}>
+                <SelectTrigger className="w-full">
+                  <SelectValue placeholder="选择音质" />
+                </SelectTrigger>
+                <SelectContent>
+                  {availableQualities.map((opt) => (
+                    <SelectItem key={opt.value} value={opt.value}>
+                      <span className="flex items-center gap-2">
+                        <span className="font-medium">{opt.label}</span>
+                        <span className="text-muted-foreground text-xs">({opt.desc})</span>
+                      </span>
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+          </div>
+
+          {/* 搜索框 */}
           <div className="space-y-3">
             <Label htmlFor="music-keyword" className="text-sm font-medium">
               搜索关键词
@@ -282,7 +363,7 @@ export default function MusicDownload() {
                             {isDownloading === song.id ? (
                               <>
                                 <i className="i-lucide:loader-2 w-4 h-4 mr-1.5 animate-spin" />
-                                下载中
+                                解析中
                               </>
                             ) : (
                               <>
@@ -309,7 +390,11 @@ export default function MusicDownload() {
             <div className="text-xs md:text-sm text-muted-foreground space-y-2">
               <p className="flex items-start gap-2">
                 <i className="i-lucide:info w-4 h-4 mt-0.5 flex-shrink-0 text-primary" />
-                <span>搜索结果来自多个音乐平台，您可以选择不同版本下载</span>
+                <span>当前搜索平台：{platformOptions.find(p => p.value === platform)?.label}</span>
+              </p>
+              <p className="flex items-start gap-2">
+                <i className="i-lucide:settings w-4 h-4 mt-0.5 flex-shrink-0 text-primary" />
+                <span>当前下载音质：{qualityOptions.find(q => q.value === quality)?.label} ({qualityOptions.find(q => q.value === quality)?.desc})</span>
               </p>
               <p className="flex items-start gap-2">
                 <i className="i-lucide:shield-check w-4 h-4 mt-0.5 flex-shrink-0 text-primary" />
@@ -322,4 +407,3 @@ export default function MusicDownload() {
     </div>
   )
 }
-
