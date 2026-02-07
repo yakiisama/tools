@@ -21,15 +21,16 @@ export interface SearchResult {
 }
 
 /**
- * 搜索响应数据
+ * 搜索响应数据（按平台分类）
  */
 export interface SearchResponseData {
   keyword: string
-  platform: MusicPlatform
   page: number
   pageSize: number
   total: number
-  results: SearchResult[]
+  platforms: MusicPlatform[]
+  failedPlatforms: MusicPlatform[]
+  resultsByPlatform: Record<MusicPlatform, SearchResult[]>
 }
 
 /**
@@ -43,7 +44,7 @@ export interface ParseResult {
   pic?: string
   url: string
   lrc?: string
-  quality: MusicQuality
+  quality: string
 }
 
 /**
@@ -60,22 +61,19 @@ export interface ApiResponse<T> {
  */
 class MusicApi {
   /**
-   * 搜索音乐（单平台）
+   * 聚合搜索音乐（所有平台）
    * @param keyword - 搜索关键词
-   * @param platform - 音乐平台
    * @param page - 页码，默认 1
    * @param pageSize - 每页数量，默认 20
    */
   async searchMusic(
     keyword: string,
-    platform: MusicPlatform,
     page: number = 1,
     pageSize: number = 20
   ): Promise<ApiResponse<SearchResponseData> | null> {
     try {
       const params = new URLSearchParams({
         keyword,
-        platform,
         page: page.toString(),
         pageSize: pageSize.toString(),
       })

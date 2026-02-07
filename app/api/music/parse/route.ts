@@ -99,9 +99,6 @@ export async function POST(request: NextRequest) {
       quality,
     }
     
-    console.log('=== TuneHub Parse 请求 ===')
-    console.log('URL:', parseUrl)
-    console.log('Body:', JSON.stringify(requestBody, null, 2))
     
     const res = await fetch(parseUrl, {
       method: 'POST',
@@ -114,9 +111,6 @@ export async function POST(request: NextRequest) {
 
     const data: TuneHubParseResponse = await res.json()
     
-    console.log('=== TuneHub Parse 响应 ===')
-    console.log('Status:', res.status)
-    console.log('Response:', JSON.stringify(data, null, 2))
 
     if (data.code !== 0) {
       return NextResponse.json({

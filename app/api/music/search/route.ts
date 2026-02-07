@@ -150,13 +150,12 @@ async function searchPlatform(
 }
 
 /**
- * 单平台搜索接口
- * GET /api/music/search?keyword=xxx&platform=netease&page=1&pageSize=20
+ * 聚合搜索接口 - 并行搜索多平台
+ * GET /api/music/search?keyword=xxx&page=1&pageSize=20
  */
 export async function GET(request: NextRequest) {
   const searchParams = request.nextUrl.searchParams
   const keyword = searchParams.get('keyword')
-  const platform = searchParams.get('platform') as MusicPlatform | null
   const page = parseInt(searchParams.get('page') || '1')
   const pageSize = parseInt(searchParams.get('pageSize') || '20')
 
@@ -164,37 +163,57 @@ export async function GET(request: NextRequest) {
     return NextResponse.json({ code: -1, message: '缺少搜索关键词' }, { status: 400 })
   }
 
-  if (!platform) {
-    return NextResponse.json({ code: -1, message: '缺少平台参数' }, { status: 400 })
-  }
-
-  const validPlatforms: MusicPlatform[] = ['netease', 'qq', 'kuwo']
-  if (!validPlatforms.includes(platform)) {
-    return NextResponse.json({ code: -1, message: '不支持的平台' }, { status: 400 })
-  }
-
   if (!TUNEHUB_API_KEY) {
     console.error('TUNEHUB_API_KEY 未配置')
     return NextResponse.json({ code: -1, message: '服务器配置错误' }, { status: 500 })
   }
 
+  const platforms: MusicPlatform[] = ['netease', 'qq', 'kuwo']
+
   try {
-    const results = await searchPlatform(platform, keyword, page, pageSize)
+    // 并行搜索所有平台
+    const searchResults = await Promise.allSettled(
+      platforms.map((platform) => searchPlatform(platform, keyword, page, pageSize))
+    )
+
+    // 按平台分类结果
+    const resultsByPlatform: Record<MusicPlatform, SearchResultItem[]> = {
+      netease: [],
+      qq: [],
+      kuwo: [],
+    }
+    const successPlatforms: MusicPlatform[] = []
+    const failedPlatforms: MusicPlatform[] = []
+
+    searchResults.forEach((result, index) => {
+      const platform = platforms[index]
+      if (result.status === 'fulfilled') {
+        resultsByPlatform[platform] = result.value
+        successPlatforms.push(platform)
+      } else {
+        console.error(`[${platform}] 搜索失败:`, result.reason)
+        failedPlatforms.push(platform)
+      }
+    })
+
+    // 计算总数
+    const total = Object.values(resultsByPlatform).reduce((sum, arr) => sum + arr.length, 0)
 
     return NextResponse.json({
       code: 0,
       message: 'success',
       data: {
         keyword,
-        platform,
         page,
         pageSize,
-        total: results.length,
-        results,
+        total,
+        platforms: successPlatforms,
+        failedPlatforms,
+        resultsByPlatform,
       },
     })
   } catch (error) {
-    console.error(`[${platform}] 搜索失败:`, error)
+    console.error('聚合搜索失败:', error)
     return NextResponse.json({ code: -1, message: '搜索失败' }, { status: 500 })
   }
 }
